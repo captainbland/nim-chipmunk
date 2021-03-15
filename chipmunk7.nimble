@@ -6,4 +6,5 @@ description: "Bindings for Chipmunk, a fast and lightweight 2D game physics libr
 license: "MIT"
 srcDir: "src"
 [Deps]
-requires: "nim >= 0.10.0"
+requires: "nim >= 1.4.0"
+requires "glm"

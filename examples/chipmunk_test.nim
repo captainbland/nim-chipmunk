@@ -1,7 +1,10 @@
 import 
   chipmunk, 
   csfml, 
-  math
+  math,
+  times,
+  random,
+  glm
 
 const
   Width = 800
@@ -15,11 +18,11 @@ type
     shape: chipmunk.Shape
 
 ## Helper procedures
-proc cp2sfml(v: Vect): Vector2f {.inline.} =
+proc cp2sfml(v: glm.Vec2d): csfml.Vector2f {.inline.} =
   result.x = v.x
   result.y = v.y
 
-proc vectorToVec2f(a: Vect): Vector2f =
+proc vectorToVec2f(a: glm.Vec2d): csfml.Vector2f =
   result.x = a.x
   result.y = a.y
 
@@ -31,19 +34,21 @@ var
   space = newSpace()
   gameobjects: seq[GameObjPtr] = @[]
   event: Event
-  oldPos: Vect
+  oldPos: glm.Vec2d
 
 window.framerateLimit = 60
-space.gravity = Vect(x:8.9, y:82.3)
-randomize()
+space.gravity = vec2d(8.9, 82.3)
+
+let now = getTime()
+randomize(now.toUnix * 1_000_000_000 + now.nanosecond)
 
 ## Set the filters that are used to determine which objects collide and which ones don't: 
 ## http://chipmunk-physics.net/release/ChipmunkLatest-Docs/#cpShape-Filtering
 const
-  cBorder = 0b0001.BitMask
-  cBall = 0b0010.BitMask
-  cBox = 0b0100.BitMask
-  cBlueBall = 0b1000.BitMask
+  cBorder = 0b0001
+  cBall = 0b0010
+  cBox = 0b0100
+  cBlueBall = 0b1000
 
 let
   FilterBorder = chipmunk.ShapeFilter(
@@ -88,7 +93,7 @@ borders = @[
   Vect(x:Width, y:0.0),
   Vect(x:Width, y:Height),
   Vect(x:0.0, y:Height)]
-var sfBorders = newVertexArray(PrimitiveType.LinesStrip, 4)
+var sfBorders = newVertexArray(PrimitiveType.Lines, 4)
 for i in 0..3:
   var shape = space.addShape(
     newSegmentShape(
